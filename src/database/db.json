@@ -1,0 +1,42 @@
+{
+  "users": [
+    {
+      "name": "Juliet Oma",
+      "email": "julie@yahoo.com",
+      "number": "08100000000",
+      "id": "1",
+      "username": "Juliet Oma",
+      "phone": "434343"
+    },
+    {
+      "name": "James Williams",
+      "email": "jameswilly@gmail.com",
+      "number": "08111111111",
+      "id": "2",
+      "username": "James Williams",
+      "phone": "5435435"
+    },
+    {
+      "name": "Ahmed Ali",
+      "email": "ahmedali012@gmail.com",
+      "number": "09022222222",
+      "id": "3",
+      "username": "Ahmed Ali",
+      "phone": "432432423"
+    },
+    {
+      "id": "6833",
+      "name": "ewrwr",
+      "username": "rewr",
+      "email": "rewr",
+      "phone": "rewr"
+    },
+    {
+      "id": "174e",
+      "name": "Rahul kuar",
+      "username": "rahulfdfdsf",
+      "email": "Rahul@gmail.com",
+      "phone": "07011616298"
+    }
+  ]
+}
