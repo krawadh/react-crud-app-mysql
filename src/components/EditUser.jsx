@@ -45,7 +45,7 @@ const EditUser = () => {
 
   const getUserDetail = async () => {
     const response = await getUserByid(id);
-    const userDetail = response.data.userRs[0];
+    const userDetail = response.data.userRs;
     setUser({
       ...user,
       name: userDetail.name,
