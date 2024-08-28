@@ -1,4 +1,4 @@
-//import styled from "@emotion/styled";
+import React, { useState } from "react";
 import {
   Box,
   Button,
@@ -9,10 +9,9 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { useState } from "react";
-
-import { addUser } from "../services/api";
-import { useNavigate } from "react-router-dom";
+import { addUser } from "../services/api"; // getUsers
+import { useModal } from "../context/ModalContext";
+import Spinner from "../ui/Spinner";
 
 const FormContainer = styled(Box)`
   width: 50%;
@@ -23,36 +22,47 @@ const FormContainer = styled(Box)`
     }
   }
 `;
+
 const initialValue = {
-  name: "",
-  username: "",
+  fname: "",
+  lname: "",
   email: "",
   phone: "",
 };
+
 const AddUser = () => {
   const [user, setUser] = useState(initialValue);
-  const navigate = useNavigate();
-
+  const { users, setUsers, closeModal, isLoading, setIsLoading } = useModal();
   const onValueChange = (e) => {
     setUser({ ...user, [e.target.name]: e.target.value });
   };
 
   const handleAddUserDetail = async () => {
-    await addUser(user);
-    navigate("/");
-  };
+    try {
+      setIsLoading(true);
+      const newUser = await addUser(user);
 
+      const ussr = { ...user, id: newUser.data.results.insertId };
+      setUsers([...users, ussr]);
+      setIsLoading(false);
+      closeModal(); // Close the modal
+    } catch (error) {
+      setIsLoading(false);
+      console.log(error.message);
+    }
+  };
+  if (isLoading) return <Spinner />;
   return (
     <FormContainer>
       <FormGroup>
         <Typography variant="h4">Add User</Typography>
         <FormControl>
-          <InputLabel>Name</InputLabel>
-          <Input onChange={onValueChange} name="name"></Input>
+          <InputLabel>First Name</InputLabel>
+          <Input onChange={onValueChange} name="fname"></Input>
         </FormControl>
         <FormControl>
-          <InputLabel>UserName</InputLabel>
-          <Input onChange={onValueChange} name="username"></Input>
+          <InputLabel>Last Name</InputLabel>
+          <Input onChange={onValueChange} name="lname"></Input>
         </FormControl>
         <FormControl>
           <InputLabel>Email</InputLabel>
@@ -63,12 +73,17 @@ const AddUser = () => {
           <Input onChange={onValueChange} name="phone"></Input>
         </FormControl>
         <FormControl>
-          <Button variant="contained" onClick={handleAddUserDetail}>
-            Add
+          <Button
+            onClick={handleAddUserDetail}
+            variant="contained"
+            disabled={isLoading}
+          >
+            {isLoading ? "Submitting...." : "Add User"}
           </Button>
         </FormControl>
       </FormGroup>
     </FormContainer>
   );
 };
+
 export default AddUser;

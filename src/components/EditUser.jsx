@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+//import { useParams } from "react-router-dom"; //useNavigate,
 import {
   Box,
   Button,
@@ -11,7 +11,9 @@ import {
   styled,
 } from "@mui/material";
 
-import { getUserByid, editUser } from "../services/api";
+import { editUser } from "../services/api";
+import { useModal } from "../context/ModalContext";
+import Spinner from "../ui/Spinner";
 
 const FormContainer = styled(Box)`
   width: 50%;
@@ -24,16 +26,18 @@ const FormContainer = styled(Box)`
 `;
 
 const initialValue = {
-  name: "",
-  username: "",
+  fname: "",
+  lname: "",
   email: "",
   phone: "",
 };
 
-const EditUser = () => {
+const EditUser = (props) => {
+  const { users, setUsers, closeModal, isLoading, setIsLoading } = useModal();
   const [user, setUser] = useState(initialValue);
-  const navigate = useNavigate();
-  const { id } = useParams();
+  //const navigate = useNavigate();
+  //const { id } = useParams();
+  const id = props.id;
 
   useEffect(() => {
     getUserDetail();
@@ -44,36 +48,66 @@ const EditUser = () => {
   };
 
   const getUserDetail = async () => {
-    const response = await getUserByid(id);
-    const userDetail = response.data.userRs;
-    setUser({
-      ...user,
-      name: userDetail.name,
-      username: userDetail.username,
-      email: userDetail.email,
-      phone: userDetail.phone,
-    });
+    try {
+      // const response = await getUserByid(id);
+      // console.log(response.data.userRs);
+      // const userDetail = response.data.userRs;
+      const userDetail = users.filter((e) => e.id === Number(id));
+      setUser({
+        ...user,
+        fname: userDetail[0].fname,
+        lname: userDetail[0].lname,
+        email: userDetail[0].email,
+        phone: userDetail[0].phone,
+      });
+    } catch (error) {
+      console.log(error);
+      throw new Error(error);
+    }
   };
 
   const handleEditUserDetail = async () => {
-    await editUser(user, id);
-    navigate("/");
-  };
+    try {
+      setIsLoading(true);
+      await editUser(user, id);
 
+      const updatedUsers = users.map((e) =>
+        e.id === Number(id)
+          ? {
+              ...e,
+              fname: user.fname,
+              lname: user.lname,
+              email: user.email,
+              phone: user.phone,
+            }
+          : e
+      );
+
+      setUsers(updatedUsers);
+      //setIsLoading(false);
+      closeModal(); // Close the modal
+      //navigate("/users", { replace: true });
+    } catch (error) {}
+  };
+  if (isLoading) return <Spinner />;
   return (
     <FormContainer>
       <FormGroup>
         <Typography variant="h4">Edit User</Typography>
         <FormControl>
-          <InputLabel>Name</InputLabel>
-          <Input onChange={onValueChange} name="name" value={user.name}></Input>
-        </FormControl>
-        <FormControl>
-          <InputLabel>UserName</InputLabel>
+          <InputLabel>First Name</InputLabel>
           <Input
             onChange={onValueChange}
-            name="username"
-            value={user.username}
+            name="fname"
+            value={user.fname}
+          ></Input>
+        </FormControl>
+        <FormControl>
+          <InputLabel>Last Name</InputLabel>
+          <Input
+            onChange={onValueChange}
+            name="lname"
+            value={user.lname}
           ></Input>
         </FormControl>
         <FormControl>

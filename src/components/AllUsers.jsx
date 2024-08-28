@@ -7,9 +7,13 @@ import {
   TableRow,
   styled,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+
+//import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { getUsers, deleteUser } from "../services/api";
+import { deleteUser } from "../services/api"; //getUsers,
+import { useModal } from "../context/ModalContext";
+import EditUser from "./EditUser";
+import Spinner from "../ui/Spinner";
 
 const TableConatiner = styled(Table)`
   width: 90%;
@@ -34,21 +38,28 @@ const TBody = styled(TableBody)`
 `;
 
 const AllUsers = () => {
-  const [users, setUsers] = useState([]);
-
-  useEffect(() => {
-    getUsersDetail();
-  }, []);
-
-  const getUsersDetail = async () => {
-    const response = await getUsers();
-    setUsers(response.data.usersRs);
-  };
-
+  const { users, setUsers, openModal, isLoading, setIsLoading } = useModal();
   const deleteUserData = async (id) => {
-    await deleteUser(id);
-    getUsersDetail();
+    try {
+      setIsLoading(true);
+      const deletedRs = await deleteUser(id);
+      if (deletedRs && deletedRs.status === 200) {
+        const usersAfterDeleted = users.filter((e) => e.id !== Number(id));
+        setUsers(usersAfterDeleted);
+        setIsLoading(false);
+      }
+    } catch (error) {
+      setIsLoading(false);
+      throw new Error(error);
+    }
   };
+
+  const handleOpenUpdateUserModal = (id) => {
+    setIsLoading(true);
+    openModal(<EditUser id={id} />);
+    setIsLoading(false);
+  };
+  if (isLoading) return <Spinner />;
   return (
     <TableConatiner>
       <THead>
@@ -62,13 +73,13 @@ const AllUsers = () => {
         </TableRow>
       </THead>
       <TBody>
-        {users.map((row) => (
+        {users.map((row, index) => (
           <TableRow key={row.id}>
             <TableCell component="th" scope="row">
-              {row._id}
+              {++index /* {row.id} */}
             </TableCell>
-            <TableCell>{row.name}</TableCell>
-            <TableCell>{row.username}</TableCell>
+            <TableCell>{row.fname}</TableCell>
+            <TableCell>{row.lname}</TableCell>
             <TableCell>{row.email}</TableCell>
             <TableCell>{row.phone}</TableCell>
             <TableCell>
@@ -76,8 +87,9 @@ const AllUsers = () => {
                 variant="contained"
                 color="secondary"
                 style={{ marginRight: 10 }}
-                component={Link}
-                to={`/edit/${row.id}`}
+                onClick={() => handleOpenUpdateUserModal(row.id)}
+                //component={Link}
+                //to={`/edit/${row.id}`}
               >
                 Update
               </Button>
